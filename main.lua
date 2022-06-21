@@ -3,22 +3,21 @@ package.cpath="./?.dll"
 local https = require('https')
 local json = require('json')
 local config = require('config')
+local game = require('lootlocker.game')
 
-local modules = {
-    https = https,
-    json = json,
-    config = config
-}
-
-local game
 local info
+local sdk
 
 function love.load()
-    game = require('lootlocker.game')(modules)
-    local response = game.createSession('Oskar', 'android')
+    sdk = game({
+        https = https,
+        json = json,
+        config = config
+    })
+    local response = sdk.createSession('Oskar', 'android')
     info = response.session_token
     if response.success then
-        response = game.submitXp(100)
+        response = sdk.submitXp(100)
         if response.error then
             info = "error: " .. response.error
         else
