@@ -1,19 +1,18 @@
-local mock_json = {
-	encode = function(o)
-		return tostring(o)
-	end,
-	decode = function(s)
-		return { o }
-	end
-}
-local mock_https = {
+local session_token = 'll-session-token'
+
+local json = require 'json'
+local https = {
 	request = function(url, options)
-		return 404, options.data, {}
+		if url:match('/game/v2/session$') then
+			return 200, json.encode({
+				success = true,
+				session_token = session_token,
+			}), {}
+		end
+		return 404, '', {}
 	end
 }
 insulate("lootlocker game sdk", function()
-	json = mock_json 
-	https = mock_https
 	game = require("lootlocker.game")
 	sdk = game({
 		json = json,
@@ -24,9 +23,8 @@ insulate("lootlocker game sdk", function()
 			development_mode = true
 		}
 	})
-	describe("sessions", function()
+	it("creates a session", function()
 		assert.is_not_nil(sdk)
-		sdk.createSession()
-		assert.is_not_nil(sdk.session_token)
+		assert.are.equal(session_token, sdk.createSession().session_token)
 	end)
 end)
