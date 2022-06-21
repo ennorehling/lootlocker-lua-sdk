@@ -1,4 +1,4 @@
-package.cpath="./?.dll"
+package.cpath="./?.dll;./?.so"
 
 local https = require('https')
 local json = require('json')
